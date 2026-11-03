@@ -1,5 +1,5 @@
 {
-  "name": "yuvomi-baby-schedule",
+  "name": "Baby-Schedule-Module-for-Yuvomi",
   "version": "1.0.0",
   "private": true,
   "description": "Baby Schedule module for Yuvomi, with its sidecar service.",

@@ -8,3 +8,4 @@ deploy/.env
 deploy/data/
 deploy/backups/
 deploy/baby-schedule-data/
+.history/
