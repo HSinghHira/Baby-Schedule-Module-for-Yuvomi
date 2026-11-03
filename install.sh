@@ -1,7 +1,7 @@
 #!/bin/sh
 # Baby Schedule for Yuvomi - install or update with one command.
 #
-#   curl -fsSL https://raw.githubusercontent.com/HSinghHira/Baby-Schedule-Module-for-Yuvomi/main/install.sh | sh
+#   curl -fsSL https://cdn.jsdelivr.net/gh/HSinghHira/Baby-Schedule-Module-for-Yuvomi@main/install.sh | sh
 #
 # or, from a copy of this repository on the server:   sh install.sh
 #
