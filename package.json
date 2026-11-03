@@ -1,0 +1,13 @@
+{
+  "name": "yuvomi-baby-schedule",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Baby Schedule module for Yuvomi, with its sidecar service.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "test": "node --disable-warning=ExperimentalWarning --test \"test/**/*.test.js\" \"sidecar/test/**/*.test.js\""
+  }
+}

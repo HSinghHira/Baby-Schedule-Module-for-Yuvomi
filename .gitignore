@@ -1,0 +1,10 @@
+node_modules/
+*.db
+*.db-wal
+*.db-shm
+.csrf_secret
+sidecar/data/
+deploy/.env
+deploy/data/
+deploy/backups/
+deploy/baby-schedule-data/

@@ -1,0 +1,50 @@
+# Baby Schedule for an EXISTING Yuvomi (ZimaOS / IceStore, Unraid, a plain
+# docker run, ...). Adds two containers:
+#
+#   baby-schedule  the sidecar with its own database
+#   gateway        nginx: /api/extensions/baby-schedule/ -> sidecar, everything else -> Yuvomi
+#
+# Open Yuvomi through the gateway (port 6162 below) instead of its own port,
+# or point your HTTPS proxy at the gateway. See README.md, "Installation".
+#
+#   docker compose -f docker-compose.addon.yml up -d --build
+
+name: baby-schedule
+
+services:
+  baby-schedule:
+    build: ../sidecar
+    image: baby-schedule-sidecar:1.0.0
+    container_name: baby-schedule
+    restart: unless-stopped
+    environment:
+      # How the sidecar reaches Yuvomi to check sign-ins. On ZimaOS/IceStore
+      # Yuvomi is published on the host at 6161.
+      YUVOMI_INTERNAL_URL: ${YUVOMI_URL:-http://host.docker.internal:6161}
+      # The address you type in the browser, e.g. https://yuvomi.example.com
+      # (comma-separated for several). Leave empty to trust the proxy headers.
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
+      # 1 = only this gateway in front; 2 = an HTTPS proxy in front of the gateway.
+      TRUST_PROXY_HOPS: ${TRUST_PROXY_HOPS:-1}
+      TZ: ${TZ:-UTC}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ${BABY_SCHEDULE_DATA:-./baby-schedule-data}:/data
+
+  gateway:
+    image: nginx:1.27-alpine
+    container_name: baby-schedule-gateway
+    restart: unless-stopped
+    depends_on:
+      - baby-schedule
+    environment:
+      YUVOMI_UPSTREAM: ${YUVOMI_URL:-http://host.docker.internal:6161}
+      SIDECAR_UPSTREAM: http://baby-schedule:8080
+      NGINX_ENVSUBST_FILTER: "^(YUVOMI_UPSTREAM|SIDECAR_UPSTREAM)$"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "${GATEWAY_PORT:-6162}:80"
+    volumes:
+      - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro

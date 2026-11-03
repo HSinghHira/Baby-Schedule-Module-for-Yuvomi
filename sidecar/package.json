@@ -1,0 +1,14 @@
+{
+  "name": "baby-schedule-sidecar",
+  "version": "1.0.0",
+  "description": "Backend service for the Yuvomi Baby Schedule module: stores the household's weekly baby schedule.",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning src/server.js",
+    "test": "node --disable-warning=ExperimentalWarning --test \"test/**/*.test.js\""
+  }
+}

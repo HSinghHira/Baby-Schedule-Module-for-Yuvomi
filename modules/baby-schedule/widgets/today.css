@@ -1,0 +1,141 @@
+/* "Baby today" dashboard widget. Loaded by widgets/today.js, because the
+ * manifest's style.css only loads on the module page. Yuvomi tokens only. */
+
+.bsw {
+  --bsw-tone-sun: var(--meal-breakfast, var(--color-warning));
+  --bsw-tone-milk: var(--color-info);
+  --bsw-tone-water: var(--module-schedule, var(--color-info));
+  --bsw-tone-meal: var(--meal-lunch, var(--color-warning));
+  --bsw-tone-fresh: var(--color-success);
+  --bsw-tone-snack: var(--meal-snack, var(--color-danger));
+  --bsw-tone-sleep: var(--meal-dinner, var(--color-accent));
+  --bsw-tone-play: var(--module-health, var(--color-accent));
+  --bsw-tone-other: var(--color-text-tertiary);
+  display: flex;
+  flex-direction: column;
+}
+
+.bsw-tone-sun   { --bsw-tone: var(--bsw-tone-sun); }
+.bsw-tone-milk  { --bsw-tone: var(--bsw-tone-milk); }
+.bsw-tone-water { --bsw-tone: var(--bsw-tone-water); }
+.bsw-tone-meal  { --bsw-tone: var(--bsw-tone-meal); }
+.bsw-tone-fresh { --bsw-tone: var(--bsw-tone-fresh); }
+.bsw-tone-snack { --bsw-tone: var(--bsw-tone-snack); }
+.bsw-tone-sleep { --bsw-tone: var(--bsw-tone-sleep); }
+.bsw-tone-play  { --bsw-tone: var(--bsw-tone-play); }
+.bsw-tone-other { --bsw-tone: var(--bsw-tone-other); }
+
+.bsw-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: 0 var(--space-4) var(--space-3);
+  min-width: 0;
+}
+
+.bsw-next__label {
+  font-size: var(--type-micro, 0.6875rem);
+  font-weight: var(--font-weight-semibold, 600);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label, 0.02em);
+  color: var(--color-text-secondary);
+}
+
+.bsw-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.bsw-row {
+  display: grid;
+  grid-template-columns: 4.25rem 2rem minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--space-2);
+  min-height: 2.75rem;
+  padding: var(--space-1) var(--space-2);
+  margin-inline: calc(var(--space-2) * -1);
+  border-radius: var(--radius-sm);
+}
+
+.bsw-row + .bsw-row {
+  border-top: 1px solid var(--color-border-subtle, var(--color-border));
+}
+
+.bsw-row.is-next {
+  background: color-mix(in srgb, var(--bsw-tone) var(--tint-wash, 8%), transparent);
+  border-top-color: transparent;
+}
+
+.bsw-row.is-next + .bsw-row {
+  border-top-color: transparent;
+}
+
+.bsw-row__time {
+  font-size: var(--type-secondary, 0.9375rem);
+  font-weight: var(--font-weight-semibold, 600);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--color-text-primary);
+}
+
+.bsw-row__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--bsw-tone) var(--tint-surface, 16%), var(--color-surface));
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.bsw-row__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.bsw-row__title {
+  font-size: var(--type-secondary, 0.9375rem);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bsw-row__qty {
+  font-weight: var(--font-weight-semibold, 600);
+  color: color-mix(in srgb, var(--bsw-tone) var(--tint-ink, 70%), var(--color-text-primary));
+}
+
+.bsw-row__meta {
+  font-size: var(--type-caption, 0.8125rem);
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bsw-foot {
+  margin: 0;
+  font-size: var(--type-caption, 0.8125rem);
+  color: var(--color-text-secondary);
+}
+
+.bsw-foot:empty {
+  display: none;
+}
+
+.bsw-empty {
+  margin: 0;
+}
+
+.bsw-link {
+  color: var(--color-accent);
+  font-weight: var(--font-weight-medium, 500);
+  margin-inline-start: var(--space-1);
+}

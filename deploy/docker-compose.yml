@@ -1,0 +1,76 @@
+# Yuvomi + Baby Schedule, complete stack.
+#
+#   yuvomi         the official Yuvomi image, unchanged
+#   baby-schedule  the module's sidecar (own SQLite database in ./baby-schedule-data)
+#   gateway        nginx on port 3000: /api/extensions/baby-schedule/ -> sidecar, rest -> Yuvomi
+#
+# Yuvomi itself is not published; everyone opens http://<server>:3000 (or your
+# HTTPS proxy pointing at the gateway).
+#
+#   cp .env.example .env    # set SESSION_SECRET and DB_ENCRYPTION_KEY
+#   docker compose up -d --build
+#
+# This repository's ../modules folder is Yuvomi's modules folder, so
+# baby-schedule shows up in Settings -> Modules right away (copied by hand,
+# so it starts enabled).
+
+name: yuvomi
+
+services:
+  yuvomi:
+    image: ghcr.io/ulsklyc/yuvomi:latest
+    container_name: yuvomi
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - DB_PATH=/data/yuvomi.db
+      - BACKUP_DIR=/backups
+      - MODULES_DIR=/app/modules
+      - SESSION_SECURE=${SESSION_SECURE:-false}
+      # One proxy (the gateway) in front; use 2 if an HTTPS proxy sits in front of it.
+      - TRUST_PROXY=${TRUST_PROXY_HOPS:-1}
+    volumes:
+      - ${YUVOMI_DATA:-./data}:/data
+      - ${YUVOMI_BACKUPS:-./backups}:/backups
+      # This repository's modules/ folder (holds baby-schedule). Not read-only:
+      # Yuvomi's start script takes ownership of /app/modules and stops on failure.
+      - ${YUVOMI_MODULES:-../modules}:/app/modules
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', r => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  baby-schedule:
+    build: ../sidecar
+    image: baby-schedule-sidecar:1.0.0
+    container_name: baby-schedule
+    restart: unless-stopped
+    depends_on:
+      - yuvomi
+    environment:
+      YUVOMI_INTERNAL_URL: http://yuvomi:3000
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
+      TRUST_PROXY_HOPS: ${TRUST_PROXY_HOPS:-1}
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ${BABY_SCHEDULE_DATA:-./baby-schedule-data}:/data
+
+  gateway:
+    image: nginx:1.27-alpine
+    container_name: yuvomi-gateway
+    restart: unless-stopped
+    depends_on:
+      - yuvomi
+      - baby-schedule
+    environment:
+      YUVOMI_UPSTREAM: http://yuvomi:3000
+      SIDECAR_UPSTREAM: http://baby-schedule:8080
+      NGINX_ENVSUBST_FILTER: "^(YUVOMI_UPSTREAM|SIDECAR_UPSTREAM)$"
+    ports:
+      - "${HTTP_PORT:-3000}:80"
+    volumes:
+      - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro

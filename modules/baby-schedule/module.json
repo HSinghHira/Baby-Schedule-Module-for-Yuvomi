@@ -1,0 +1,58 @@
+{
+  "manifestVersion": 1,
+  "id": "baby-schedule",
+  "name": "Baby Schedule",
+  "version": "1.0.0",
+  "description": "Plan your baby's week together: bottles, water, meals, fruit, naps and sleep, Monday to Sunday.",
+  "entry": "index.js",
+  "style": "style.css",
+  "settings": {
+    "entry": "settings.js",
+    "sections": ["household"],
+    "labelKey": "bridge.sheet"
+  },
+  "icon": "baby",
+  "accent": "#6574E0",
+  "menu": {
+    "show": true,
+    "label": "Baby Schedule",
+    "labelKey": "nav",
+    "icon": "baby",
+    "order": 50
+  },
+  "page": {
+    "composition": "dashboard",
+    "width": "wide",
+    "navigation": "standard",
+    "responsive": "standard"
+  },
+  "i18n": {
+    "defaultLocale": "en"
+  },
+  "capabilities": {
+    "permissions": {
+      "module": {
+        "label": "Baby Schedule",
+        "labelKey": "permission",
+        "icon": "baby"
+      },
+      "widgets": [
+        { "id": "today", "label": "Baby today" }
+      ]
+    },
+    "widgets": [
+      {
+        "id": "today",
+        "entry": "widgets/today.js",
+        "label": "Baby today",
+        "labelKey": "widgets.today",
+        "icon": "baby",
+        "defaultSize": "1x2",
+        "defaultVisible": true
+      }
+    ],
+    "api": {
+      "prefix": "/api/extensions/baby-schedule"
+    }
+  }
+}

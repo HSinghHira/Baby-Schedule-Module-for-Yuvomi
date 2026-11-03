@@ -1,0 +1,58 @@
+# Gateway in front of Yuvomi and the Baby Schedule sidecar.
+#
+# Everything goes to Yuvomi, except /api/extensions/baby-schedule/, which goes
+# to the sidecar. Both are then on the same origin, so the browser sends the
+# Yuvomi session cookie to the sidecar, which checks it with Yuvomi.
+#
+# Variables (filled in by the nginx image at start):
+#   YUVOMI_UPSTREAM   e.g. http://yuvomi:3000  or  http://host.docker.internal:6161
+#   SIDECAR_UPSTREAM  e.g. http://baby-schedule:8080
+
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      '';
+}
+
+# Keep what an outer HTTPS proxy (Nginx Proxy Manager, Traefik, Caddy) says,
+# otherwise the sidecar would think the page is http:// and refuse writes.
+map $http_x_forwarded_proto $fwd_proto {
+    default $http_x_forwarded_proto;
+    ''      $scheme;
+}
+map $http_x_forwarded_host $fwd_host {
+    default $http_x_forwarded_host;
+    ''      $http_host;
+}
+
+server {
+    listen 80;
+    server_name _;
+    client_max_body_size 50m;
+
+    # ^~ so the regex location of an outer proxy config cannot take it over.
+    location ^~ /api/extensions/baby-schedule/ {
+        proxy_pass ${SIDECAR_UPSTREAM};
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Host $fwd_host;
+        proxy_set_header X-Forwarded-Proto $fwd_proto;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Connection '';
+        client_max_body_size 64k;
+        proxy_read_timeout 30s;
+    }
+
+    location / {
+        proxy_pass ${YUVOMI_UPSTREAM};
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $fwd_proto;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+        # Live updates and long requests pass straight through.
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+    }
+}
